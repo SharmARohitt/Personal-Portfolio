@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Exo:wght@400;500;600;700;800&display=swap');
 
@@ -90,6 +89,10 @@
   canvas {
     @apply touch-none;
   }
+  
+  a, button, [role="button"], input, textarea, select, [tabindex]:not([tabindex="-1"]) {
+    cursor: none !important;
+  }
 }
 
 @layer components {
@@ -146,7 +149,6 @@
   z-index: 1;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -164,7 +166,6 @@
   background: hsl(var(--primary) / 0.8);
 }
 
-/* Project card perspective effects */
 .project-card {
   transition: transform 0.5s ease;
   transform-style: preserve-3d;
@@ -174,7 +175,6 @@
   transform: translateY(-10px);
 }
 
-/* Animation delays for staggered effects */
 .delay-100 {
   animation-delay: 100ms;
 }
@@ -193,4 +193,31 @@
 
 .delay-500 {
   animation-delay: 500ms;
+}
+
+.cursor-aware {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cursor-aware:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.cursor-scale-lg:hover ~ .custom-cursor .cursor-outer {
+  transform: translate(-50%, -50%) scale(1.5) !important;
+}
+
+.cursor-scale-sm:hover ~ .custom-cursor .cursor-outer {
+  transform: translate(-50%, -50%) scale(0.5) !important;
+}
+
+@keyframes cursor-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+.cursor-pulse:hover ~ .custom-cursor .cursor-inner {
+  animation: cursor-pulse 1s infinite;
 }
