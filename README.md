@@ -29,5 +29,5 @@ Welcome to my personal 3D portfolio website — an interactive experience where 
 - `Railway` / `Heroku` / `AWS` (for backend)
 - GitHub Actions (CI/CD)
 
-## 📁 Folder Structure
+
 
