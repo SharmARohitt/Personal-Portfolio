@@ -12,11 +12,9 @@ const CustomCursor = () => {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (cursorOuterRef.current && cursorInnerRef.current) {
-        // Position the outer cursor with a slight delay for trailing effect
-        cursorOuterRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-        
-        // Inner cursor follows more precisely
-        cursorInnerRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        // Precise centering by subtracting half of the cursor's dimensions
+        cursorOuterRef.current.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
+        cursorInnerRef.current.style.transform = `translate(${e.clientX - 6}px, ${e.clientY - 6}px)`;
       }
     };
 
@@ -56,14 +54,14 @@ const CustomCursor = () => {
     };
   }, []);
 
-  // Define cursor colors based on theme
+  // Define cursor colors based on theme with more vibrant and precise colors
   const outerColor = theme === 'dark' 
-    ? 'rgba(138, 43, 226, 0.4)' 
-    : 'rgba(102, 0, 255, 0.4)';
+    ? 'rgba(138, 43, 226, 0.5)' 
+    : 'rgba(102, 0, 255, 0.5)';
   
   const innerColor = theme === 'dark'
-    ? 'rgba(255, 0, 200, 0.8)'
-    : 'rgba(0, 242, 255, 0.8)';
+    ? 'rgba(255, 0, 200, 1)'
+    : 'rgba(0, 242, 255, 1)';
 
   return (
     <>
@@ -84,7 +82,7 @@ const CustomCursor = () => {
           height: '40px',
           borderRadius: '50%',
           backgroundColor: outerColor,
-          transform: 'translate(-50%, -50%)',
+          transform: 'translate(-50%, -50%)', // Ensures perfect centering
           mixBlendMode: 'difference',
           filter: 'blur(5px)',
           boxShadow: `0 0 20px ${outerColor}`,
@@ -106,7 +104,7 @@ const CustomCursor = () => {
           height: '12px',
           borderRadius: '50%',
           backgroundColor: innerColor,
-          transform: 'translate(-50%, -50%)',
+          transform: 'translate(-50%, -50%)', // Ensures perfect centering
           boxShadow: `0 0 10px ${innerColor}`,
         }}
       />
