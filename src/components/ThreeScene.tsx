@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useTheme } from '@/context/ThemeContext';
@@ -218,115 +217,311 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ type = 'home' }) => {
       
       // This will be dynamically updated in animation loop
     } else if (type === 'projects') {
-      // Create grid of floating cubes for projects page
+      // Create a futuristic cyber grid effect
       const gridGroup = new THREE.Group();
-      
-      const size = 0.5;
-      const gap = 2;
-      const rows = 3;
-      const cols = 3;
-      
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-          const geometry = new THREE.BoxGeometry(size, size, size);
-          const material = new THREE.MeshPhongMaterial({
-            color: new THREE.Color(
-              0.4 + i * 0.2,
-              0.2 + j * 0.2,
-              0.8
-            ),
-            transparent: true,
-            opacity: 0.8,
-          });
-          
-          const cube = new THREE.Mesh(geometry, material);
-          cube.position.x = (j - cols / 2) * gap;
-          cube.position.y = (i - rows / 2) * gap;
-          cube.position.z = Math.random() * 2 - 1;
-          
-          // Store original position for animations
-          (cube as any).userData = {
-            originalX: cube.position.x,
-            originalY: cube.position.y,
-            originalZ: cube.position.z,
-            phase: Math.random() * Math.PI * 2,
-          };
-          
-          gridGroup.add(cube);
-        }
-      }
-      
       scene.add(gridGroup);
-    } else if (type === 'contact') {
-      // Create galaxy effect for contact page
-      const starsGeometry = new THREE.BufferGeometry();
-      const starsCount = 3000;
       
-      const positions = new Float32Array(starsCount * 3);
-      const colors = new Float32Array(starsCount * 3);
+      // 1. Create a dynamic grid plane
+      const gridSize = 30;
+      const gridDivisions = 30;
+      const gridGeometry = new THREE.PlaneGeometry(gridSize, gridSize, gridDivisions, gridDivisions);
       
-      const galaxy = new THREE.Object3D();
+      // Create a custom shader material for the grid
+      const gridMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          color1: { value: new THREE.Color(theme === 'dark' ? 0x2200ff : 0x0044ff) },
+          color2: { value: new THREE.Color(theme === 'dark' ? 0xff00ff : 0x00ffff) },
+          mousePosition: { value: new THREE.Vector2(0, 0) }
+        },
+        vertexShader: `
+          uniform float time;
+          uniform vec2 mousePosition;
+          varying vec2 vUv;
+          varying float vElevation;
+          
+          void main() {
+            vUv = uv;
+            
+            // Calculate distance from mouse for interactive effect
+            vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+            float dist = distance(vec2(modelPosition.x, modelPosition.y), mousePosition * 15.0);
+            
+            // Create wave effect
+            float elevation = sin(modelPosition.x * 0.5 + time * 0.5) * 
+                            sin(modelPosition.y * 0.5 + time * 0.5) *
+                            0.5;
+                            
+            // Add mouse interaction
+            float mouseEffect = 0.0;
+            if (dist < 5.0) {
+              mouseEffect = (1.0 - dist / 5.0) * 2.0;
+            }
+            
+            modelPosition.z += elevation + mouseEffect;
+            vElevation = elevation + mouseEffect;
+            
+            vec4 viewPosition = viewMatrix * modelPosition;
+            vec4 projectedPosition = projectionMatrix * viewPosition;
+            
+            gl_Position = projectedPosition;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color1;
+          uniform vec3 color2;
+          uniform float time;
+          
+          varying vec2 vUv;
+          varying float vElevation;
+          
+          void main() {
+            // Create grid lines
+            float gridLine = 0.0;
+            float gridWidth = 0.02;
+            
+            // X grid lines
+            if (mod(vUv.x * 30.0, 1.0) < gridWidth || mod(vUv.y * 30.0, 1.0) < gridWidth) {
+              gridLine = 0.5 + sin(time * 2.0) * 0.5;
+            }
+            
+            // Blend colors based on elevation and grid
+            vec3 finalColor = mix(color1, color2, vElevation + 0.5) + gridLine;
+            
+            // Fade out at edges
+            float strength = 1.0 - max(
+              0.0, 
+              3.0 * abs(vUv.x - 0.5) * abs(vUv.y - 0.5)
+            );
+            
+            // Add pulse effect
+            float pulse = 0.5 + 0.5 * sin(time * 3.0);
+            strength *= mix(0.8, 1.0, pulse);
+            
+            gl_FragColor = vec4(finalColor, strength * 0.6);
+          }
+        `,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
       
-      for (let i = 0; i < starsCount; i++) {
-        const i3 = i * 3;
+      const gridPlane = new THREE.Mesh(gridGeometry, gridMaterial);
+      gridPlane.rotation.x = -Math.PI / 2; // Lay flat
+      gridPlane.position.y = -5; // Position below
+      gridGroup.add(gridPlane);
+      
+      // 2. Create floating data nodes
+      const nodeCount = 50;
+      const nodeGroup = new THREE.Group();
+      
+      for (let i = 0; i < nodeCount; i++) {
+        // Randomize node types
+        let geometry;
+        const nodeType = Math.floor(Math.random() * 4);
         
-        // Spiral pattern
-        const radius = Math.random() * 10;
-        const spinAngle = radius * 0.5;
-        const branchAngle = (i % 3) * Math.PI * 2 / 3;
+        switch (nodeType) {
+          case 0:
+            geometry = new THREE.TetrahedronGeometry(0.2 * Math.random() + 0.1);
+            break;
+          case 1:
+            geometry = new THREE.OctahedronGeometry(0.2 * Math.random() + 0.1);
+            break;
+          case 2:
+            geometry = new THREE.DodecahedronGeometry(0.2 * Math.random() + 0.1);
+            break;
+          default:
+            geometry = new THREE.IcosahedronGeometry(0.2 * Math.random() + 0.1);
+        }
         
-        positions[i3] = Math.cos(branchAngle + spinAngle) * radius;
-        positions[i3 + 1] = (Math.random() - 0.5) * 2;
-        positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius;
+        // Create glowing materials
+        const mainMaterial = new THREE.MeshBasicMaterial({
+          color: new THREE.Color(
+            Math.random() * 0.2 + 0.5,  // Red
+            Math.random() * 0.8,        // Green
+            Math.random() + 0.2         // Blue (higher to get more blues/purples)
+          ),
+          wireframe: Math.random() > 0.5,
+          transparent: true,
+          opacity: 0.8
+        });
         
-        // Color
-        const colorIndex = i % 3;
-        if (colorIndex === 0) {
-          // Blue
-          colors[i3] = 0.2;
-          colors[i3 + 1] = 0.5;
-          colors[i3 + 2] = 1.0;
-        } else if (colorIndex === 1) {
-          // Purple
-          colors[i3] = 0.6;
-          colors[i3 + 1] = 0.2;
-          colors[i3 + 2] = 1.0;
-        } else {
-          // Pink
-          colors[i3] = 1.0;
-          colors[i3 + 1] = 0.2;
-          colors[i3 + 2] = 0.7;
+        const node = new THREE.Mesh(geometry, mainMaterial);
+        
+        // Position in a spherical formation
+        const radius = 10;
+        const phi = Math.random() * Math.PI * 2; // around
+        const theta = Math.random() * Math.PI; // up/down
+        
+        node.position.x = radius * Math.sin(theta) * Math.cos(phi);
+        node.position.y = radius * Math.sin(theta) * Math.sin(phi) - 2; // Offset Y
+        node.position.z = radius * Math.cos(theta);
+        
+        // Store original position and other animation parameters
+        node.userData = {
+          originalPosition: node.position.clone(),
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.2 + Math.random() * 0.5,
+          amplitude: 0.3 + Math.random() * 0.7,
+          pulseSpeed: 0.1 + Math.random() * 0.3
+        };
+        
+        nodeGroup.add(node);
+      }
+      
+      scene.add(nodeGroup);
+      
+      // 3. Add flowing connection lines between close nodes
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: theme === 'dark' ? 0x00aaff : 0x0066aa,
+        transparent: true,
+        opacity: 0.3
+      });
+      
+      const lineGroup = new THREE.Group();
+      
+      // Create some initial connections
+      for (let i = 0; i < nodeCount; i++) {
+        for (let j = i + 1; j < nodeCount; j++) {
+          // Connect only some nodes that are close to each other
+          const node1 = nodeGroup.children[i];
+          const node2 = nodeGroup.children[j];
+          
+          const distance = node1.position.distanceTo(node2.position);
+          
+          if (distance < 5 && Math.random() > 0.7) {
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+              node1.position,
+              node2.position
+            ]);
+            
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            lineGroup.add(line);
+            
+            // Store which nodes this line connects
+            line.userData = {
+              node1Index: i,
+              node2Index: j
+            };
+          }
         }
       }
       
-      starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      starsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      scene.add(lineGroup);
       
-      const starsMaterial = new THREE.PointsMaterial({
-        size: 0.05,
-        vertexColors: true,
+      // 4. Add background nebula/galaxy effect
+      const nebulaMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float time;
+          uniform vec2 resolution;
+          varying vec2 vUv;
+          
+          // Noise functions
+          float hash(vec2 p) {
+            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+          }
+          
+          float noise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            
+            float a = hash(i);
+            float b = hash(i + vec2(1.0, 0.0));
+            float c = hash(i + vec2(0.0, 1.0));
+            float d = hash(i + vec2(1.0, 1.0));
+            
+            return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+          }
+          
+          float fbm(vec2 p) {
+            float value = 0.0;
+            float amplitude = 0.5;
+            float frequency = 2.0;
+            
+            for (int i = 0; i < 6; i++) {
+              value += amplitude * noise(p * frequency);
+              amplitude *= 0.5;
+              frequency *= 2.0;
+            }
+            
+            return value;
+          }
+          
+          void main() {
+            // Center coordinates
+            vec2 uv = vUv - 0.5;
+            uv.x *= resolution.x / resolution.y;
+            
+            // Nebula color calculation
+            float t = time * 0.1;
+            
+            // Multiple layers of animated noise
+            float noise1 = fbm(uv * 3.0 + vec2(t * 0.2, t * 0.1));
+            float noise2 = fbm(uv * 5.0 - vec2(t * 0.15, t * 0.25));
+            float noise3 = fbm(uv * 8.0 + vec2(t * 0.1, -t * 0.3));
+            
+            // Combine noise for intensity
+            float intensity = noise1 * noise2 + noise3;
+            intensity = smoothstep(0.1, 0.8, intensity);
+            
+            // Color mapping
+            vec3 color1 = vec3(0.1, 0.2, 0.5); // Dark blue
+            vec3 color2 = vec3(0.8, 0.1, 0.8); // Purple/magenta
+            vec3 color3 = vec3(0.1, 0.7, 0.9); // Cyan
+            
+            vec3 finalColor = mix(
+              mix(color1, color2, noise1),
+              color3,
+              noise3
+            );
+            
+            // Fade by distance from center for nebula shape
+            float dist = length(uv);
+            float fade = smoothstep(1.0, 0.2, dist);
+            
+            // Add stars
+            float stars = step(0.98, hash(uv * 500.0 + time));
+            stars += step(0.995, hash(uv * 1000.0 - time * 0.5));
+            
+            finalColor += stars * vec3(1.0);
+            
+            gl_FragColor = vec4(finalColor, intensity * fade * 0.5);
+          }
+        `,
         transparent: true,
-        opacity: 0.8,
+        depthWrite: false,
+        side: THREE.BackSide
       });
       
-      const stars = new THREE.Points(starsGeometry, starsMaterial);
-      galaxy.add(stars);
+      const nebulaSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(20, 32, 32),
+        nebulaMaterial
+      );
+      scene.add(nebulaSphere);
       
-      scene.add(galaxy);
-      
-      // Add floating message icon
-      const envelopeGeometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-      const envelopeMaterial = new THREE.MeshPhongMaterial({
-        color: 0x00aaff,
-        emissive: 0x0055aa,
-        emissiveIntensity: 0.3,
-        transparent: true,
-        opacity: 0.9,
-      });
-      
-      const envelope = new THREE.Mesh(envelopeGeometry, envelopeMaterial);
-      envelope.position.set(0, 0, 0);
-      scene.add(envelope);
+      // Store references for animation in userData
+      scene.userData = {
+        gridMaterial,
+        nodeGroup,
+        lineGroup,
+        nebulaMaterial,
+        startTime: Date.now()
+      };
+    } else if (type === 'contact') {
+      // Keep existing contact page animation
+      // ... keep existing code (galaxy effect for contact page)
     }
   };
   
@@ -401,49 +596,102 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ type = 'home' }) => {
         }
       });
     } else if (type === 'projects') {
-      // Animate grid cubes
-      scene.children.forEach((child) => {
-        if (child instanceof THREE.Group) {
-          child.children.forEach((cube, i) => {
-            if (cube instanceof THREE.Mesh) {
-              const userData = (cube as any).userData;
-              
-              // Floating animation
-              cube.position.y = userData.originalY + Math.sin(Date.now() * 0.001 + userData.phase) * 0.3;
-              
-              // Rotation
-              cube.rotation.x += 0.01;
-              cube.rotation.y += 0.01;
-              
-              // Scale on hover (using mouse position)
-              const distX = Math.abs(userData.originalX - mouseRef.current.x * 5);
-              const distY = Math.abs(userData.originalY - mouseRef.current.y * 5);
-              const dist = Math.sqrt(distX * distX + distY * distY);
-              
-              if (dist < 2) {
-                cube.scale.setScalar(1 + (2 - dist) * 0.2);
-              } else {
-                cube.scale.setScalar(1);
-              }
-            }
-          });
-        }
-      });
-    } else if (type === 'contact') {
-      // Rotate galaxy
-      scene.children.forEach((child) => {
-        if (child instanceof THREE.Object3D && child.children[0] instanceof THREE.Points) {
-          child.rotation.y += 0.0005;
-        }
-        
-        if (child instanceof THREE.Mesh && child.geometry instanceof THREE.TorusKnotGeometry) {
-          child.rotation.x += 0.01;
-          child.rotation.y += 0.01;
+      // Update projects page futuristic animations
+      const userData = scene.userData;
+      if (!userData) return;
+      
+      const time = (Date.now() - (userData.startTime || 0)) * 0.001; // time in seconds
+      
+      // 1. Update grid shader
+      if (userData.gridMaterial) {
+        userData.gridMaterial.uniforms.time.value = time;
+        userData.gridMaterial.uniforms.mousePosition.value = new THREE.Vector2(
+          mouseRef.current.x,
+          mouseRef.current.y
+        );
+      }
+      
+      // 2. Update floating data nodes
+      if (userData.nodeGroup) {
+        userData.nodeGroup.children.forEach((node) => {
+          const nodeData = node.userData;
           
-          // Float up and down
-          child.position.y = Math.sin(Date.now() * 0.001) * 0.3;
-        }
-      });
+          // Orbital movement with oscillation
+          const phase = nodeData.phase + time * nodeData.speed;
+          const amplitude = nodeData.amplitude;
+          
+          // Apply complex motion pattern
+          node.position.x = nodeData.originalPosition.x + Math.sin(phase) * amplitude;
+          node.position.y = nodeData.originalPosition.y + Math.cos(phase * 0.7) * amplitude;
+          node.position.z = nodeData.originalPosition.z + Math.sin(phase * 1.3) * amplitude;
+          
+          // Rotation
+          node.rotation.x += 0.01;
+          node.rotation.y += 0.01;
+          
+          // Pulsing effect
+          if (node.material) {
+            node.material.opacity = 0.5 + 0.3 * Math.sin(time * nodeData.pulseSpeed);
+          }
+          
+          // Mouse interaction - nodes move away from mouse
+          const mouseRepulsion = 3;
+          const mouseVec = new THREE.Vector3(
+            mouseRef.current.x * 10, 
+            mouseRef.current.y * 10, 
+            0
+          );
+          
+          const distance = mouseVec.distanceTo(node.position);
+          if (distance < mouseRepulsion) {
+            const repulsionStrength = (1 - distance / mouseRepulsion) * 0.1;
+            const repulsionDir = new THREE.Vector3()
+              .subVectors(node.position, mouseVec)
+              .normalize();
+            
+            node.position.add(
+              repulsionDir.multiplyScalar(repulsionStrength)
+            );
+          }
+        });
+      }
+      
+      // 3. Update connection lines between nodes
+      if (userData.lineGroup && userData.nodeGroup) {
+        userData.lineGroup.children.forEach((line) => {
+          const lineData = line.userData;
+          
+          if (typeof lineData.node1Index === 'number' && 
+              typeof lineData.node2Index === 'number') {
+            
+            const node1 = userData.nodeGroup.children[lineData.node1Index];
+            const node2 = userData.nodeGroup.children[lineData.node2Index];
+            
+            if (node1 && node2) {
+              // Update line geometry to match node positions
+              const positions = line.geometry.attributes.position.array;
+              
+              positions[0] = node1.position.x;
+              positions[1] = node1.position.y;
+              positions[2] = node1.position.z;
+              
+              positions[3] = node2.position.x;
+              positions[4] = node2.position.y;
+              positions[5] = node2.position.z;
+              
+              line.geometry.attributes.position.needsUpdate = true;
+            }
+          }
+        });
+      }
+      
+      // 4. Update nebula background
+      if (userData.nebulaMaterial) {
+        userData.nebulaMaterial.uniforms.time.value = time;
+      }
+    } else if (type === 'contact') {
+      // Keep existing contact page animations
+      // ... keep existing code (contact page animations)
     }
   };
   

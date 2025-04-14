@@ -5,21 +5,39 @@ import { ExternalLink, Github, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThreeScene from '@/components/ThreeScene';
 import { projects, Project } from '@/data/projects';
+import { Card, CardContent } from '@/components/ui/card';
 
 const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, index }) => {
   return (
-    <div 
-      className="project-card glass dark:glass-dark rounded-xl overflow-hidden animate-scaleUp"
+    <Card 
+      className="project-card glass dark:glass-dark rounded-xl overflow-hidden animate-scaleUp cursor-aware"
       style={{ animationDelay: `${index * 100 + 200}ms` }}
     >
-      <div className="h-48 bg-primary/20 flex items-center justify-center">
-        {project.type === 'ai' && <span className="text-6xl">🧠</span>}
-        {project.type === 'web3' && <span className="text-6xl">⛓️</span>}
-        {project.type === 'fullstack' && <span className="text-6xl">🚀</span>}
-        {project.type === 'other' && <span className="text-6xl">💻</span>}
+      <div className="h-48 bg-primary/10 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-60 z-0">
+          {project.type === 'ai' && (
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-blue-500/30"></div>
+          )}
+          {project.type === 'web3' && (
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-teal-500/30"></div>
+          )}
+          {project.type === 'fullstack' && (
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 to-orange-500/30"></div>
+          )}
+          {project.type === 'other' && (
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/30 to-emerald-500/30"></div>
+          )}
+        </div>
+        
+        <div className="z-10 transform transition-transform duration-500 hover:scale-110">
+          {project.type === 'ai' && <span className="text-6xl">🧠</span>}
+          {project.type === 'web3' && <span className="text-6xl">⛓️</span>}
+          {project.type === 'fullstack' && <span className="text-6xl">🚀</span>}
+          {project.type === 'other' && <span className="text-6xl">💻</span>}
+        </div>
       </div>
       
-      <div className="p-6">
+      <CardContent className="p-6">
         <div className="flex flex-wrap gap-2 mb-3">
           {project.tags.slice(0, 3).map((tag) => (
             <span 
@@ -46,6 +64,7 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
             target="_blank" 
             rel="noopener noreferrer"
             className="text-foreground/70 hover:text-primary transition-colors"
+            aria-label="View source code"
           >
             <Github size={20} />
           </a>
@@ -55,12 +74,13 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
             target="_blank" 
             rel="noopener noreferrer"
             className="text-foreground/70 hover:text-primary transition-colors"
+            aria-label="View live demo"
           >
             <ExternalLink size={20} />
           </a>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
