@@ -15,16 +15,16 @@ interface TimelineItem {
 const education: TimelineItem[] = [
   {
     id: 1,
-    title: 'M.Tech in Computer Science',
-    period: '2018 - 2020',
-    description: 'Specialized in Artificial Intelligence and Machine Learning with a focus on natural language processing.',
+    title: 'B.Tech in Computer Science',
+    period: '2022 - 2026',
+    description: 'Pursuing Computer Science at Guru Gobind Singh Indraprastha University with a CGPA of 8.5, focusing on AI, web technologies, and data engineering.',
     icon: <GraduationCap className="w-5 h-5" />,
   },
   {
     id: 2,
-    title: 'B.Tech in Information Technology',
-    period: '2014 - 2018',
-    description: 'Studied core computer science subjects with electives in web development and data structures.',
+    title: 'Higher Secondary Education',
+    period: '2020 - 2022',
+    description: 'Completed 12th grade from Laxmi Public School with an \'A\' grade, with a focus on science and mathematics.',
     icon: <GraduationCap className="w-5 h-5" />,
   },
 ];
@@ -32,23 +32,23 @@ const education: TimelineItem[] = [
 const experience: TimelineItem[] = [
   {
     id: 1,
-    title: 'Lead Full-Stack Developer',
-    period: '2022 - Present',
-    description: 'Building innovative web applications with React, Node.js, and MongoDB. Leading a team of developers and implementing best practices.',
+    title: 'Internship Trainee',
+    period: 'Jan - Mar 2025',
+    description: 'Worked at Inventronics in Gurugram, utilizing Python, Flask, and related technologies for software development projects.',
     icon: <Briefcase className="w-5 h-5" />,
   },
   {
     id: 2,
-    title: 'AI Research Engineer',
-    period: '2020 - 2022',
-    description: 'Developed machine learning models for natural language processing and computer vision applications.',
+    title: 'Software Development Intern',
+    period: 'Nov - Dec 2024',
+    description: 'Remote internship at Prodigy InfoTech focusing on full-stack development using the MERN stack and modern web technologies.',
     icon: <Code className="w-5 h-5" />,
   },
   {
     id: 3,
-    title: 'Web3 Developer',
-    period: '2019 - 2020',
-    description: 'Created decentralized applications using Ethereum, Solidity, and Web3.js. Implemented smart contracts for various use cases.',
+    title: 'Mentor',
+    period: 'Dec 2024 - Mar 2025',
+    description: 'Served as a Mentor at Social Winter of Code (SWOC), guiding contributors in areas like LLMs and data engineering projects.',
     icon: <Calendar className="w-5 h-5" />,
   },
 ];
@@ -58,8 +58,10 @@ const skills = [
   { name: 'React', level: 95, category: 'frontend' },
   { name: 'Node.js', level: 85, category: 'backend' },
   { name: 'Python', level: 80, category: 'backend' },
-  { name: 'Three.js', level: 75, category: 'frontend' },
   { name: 'MongoDB', level: 85, category: 'backend' },
+  { name: 'TypeScript', level: 80, category: 'frontend' },
+  { name: 'Express.js', level: 85, category: 'backend' },
+  { name: 'Flask', level: 75, category: 'backend' },
   { name: 'Web3/Blockchain', level: 70, category: 'blockchain' },
   { name: 'Machine Learning', level: 75, category: 'ai' },
 ];
@@ -78,15 +80,15 @@ const About = () => {
           
           <div className="glass dark:glass-dark p-8 rounded-xl animate-scaleUp delay-300">
             <p className="text-xl mb-6">
-              I'm a full-stack developer with a passion for creating innovative web experiences 
-              using cutting-edge technologies. With expertise in React, Node.js, Three.js, and AI/ML,
-              I bring creative solutions to complex problems.
+              I'm a B.Tech Computer Science student with a passion for building innovative web experiences 
+              using modern technologies. Skilled in the MERN stack, TypeScript, and over 50 technologies,
+              I bring a strong mix of backend and AI expertise.
             </p>
             
             <p className="text-xl">
-              My journey in tech has been driven by curiosity and a desire to build applications that 
-              make a difference. I enjoy working at the intersection of design and technology, creating 
-              experiences that are both functional and visually stunning.
+              My journey in tech has been fueled by hands-on experience through internships
+              and mentoring opportunities. I enjoy solving complex problems and creating applications
+              that blend functionality with stunning visuals.
             </p>
           </div>
         </div>
@@ -203,9 +205,10 @@ const About = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
+              { emoji: '🎮', name: 'Gaming' },
+              { emoji: '💪', name: 'Fitness' },
+              { emoji: '🎵', name: 'Music' },
               { emoji: '📚', name: 'Reading' },
-              { emoji: '🏄‍♂️', name: 'Surfing' },
-              { emoji: '🎸', name: 'Music' },
               { emoji: '✈️', name: 'Travel' },
             ].map((item, index) => (
               <div 

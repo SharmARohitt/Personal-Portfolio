@@ -133,5 +133,94 @@ export const projects: Project[] = [
         'WebSockets'
       ]
     }
+  },
+  {
+    id: 'smart-inventory-system',
+    title: 'Smart Inventory Management System',
+    description: 'An IoT-powered inventory management system for warehouses that provides real-time tracking and predictive analytics.',
+    image: '/placeholder.svg',
+    tags: ['IoT', 'Python', 'React', 'TensorFlow'],
+    demoUrl: 'https://example.com/demo',
+    codeUrl: 'https://github.com/username/smart-inventory',
+    type: 'ai',
+    details: {
+      challenge: 'Developing a system that can accurately track inventory in real-time while providing meaningful insights for inventory optimization.',
+      solution: 'Created a network of IoT sensors integrated with a machine learning backend that predicts inventory needs and optimizes stock levels.',
+      features: [
+        'Real-time inventory tracking',
+        'Predictive stock level optimization',
+        'Automated reordering',
+        'Anomaly detection',
+        'Mobile companion app'
+      ],
+      technologies: [
+        'Raspberry Pi',
+        'TensorFlow',
+        'Python',
+        'React Native',
+        'AWS IoT',
+        'MongoDB'
+      ]
+    }
+  },
+  {
+    id: 'nft-marketplace',
+    title: 'NFT Marketplace with Social Features',
+    description: 'A decentralized marketplace for NFTs with integrated social networking features for collectors and creators.',
+    image: '/placeholder.svg',
+    tags: ['Web3', 'NFT', 'Solidity', 'React'],
+    demoUrl: 'https://example.com/demo',
+    codeUrl: 'https://github.com/username/nft-social',
+    type: 'web3',
+    details: {
+      challenge: 'Building a platform that combines NFT trading functionality with social features while ensuring security and decentralization.',
+      solution: 'Implemented smart contracts for secure NFT transactions with a responsive frontend that includes social networking features like profiles, follows, and activity feeds.',
+      features: [
+        'NFT minting and trading',
+        'Social profiles for creators',
+        'Follow system for collectors',
+        'Activity feed and notifications',
+        'Integrated wallet connections'
+      ],
+      technologies: [
+        'Solidity',
+        'IPFS',
+        'React',
+        'Next.js',
+        'Ethers.js',
+        'Hardhat',
+        'Firebase'
+      ]
+    }
+  },
+  {
+    id: 'mern-fitness-tracker',
+    title: 'MERN Fitness Tracking Platform',
+    description: 'A comprehensive fitness tracking application built with the MERN stack that helps users monitor workouts and nutrition.',
+    image: '/placeholder.svg',
+    tags: ['Full Stack', 'MERN', 'TypeScript', 'API'],
+    demoUrl: 'https://example.com/demo',
+    codeUrl: 'https://github.com/username/fitness-tracker',
+    type: 'fullstack',
+    details: {
+      challenge: 'Creating an intuitive, feature-rich application that syncs across devices and provides meaningful insights while maintaining performance.',
+      solution: 'Developed a responsive MERN stack application with TypeScript that includes real-time data synchronization and visualization tools for progress tracking.',
+      features: [
+        'Workout plan creation and tracking',
+        'Nutrition and meal logging',
+        'Progress visualization',
+        'Social sharing capabilities',
+        'Personalized recommendations'
+      ],
+      technologies: [
+        'MongoDB',
+        'Express',
+        'React',
+        'Node.js',
+        'TypeScript',
+        'Chart.js',
+        'Redux Toolkit'
+      ]
+    }
   }
 ];
